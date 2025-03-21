@@ -3,7 +3,7 @@ CREATE TABLE personne (
     nom VARCHAR(20) NOT NULL,
     prenom VARCHAR(20) NOT NULL,
     adresse VARCHAR(30) NOT NULL,
-    telephone VARCHAR(15) NOT NULL
+    telephone VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE assurance (
@@ -14,19 +14,10 @@ CREATE TABLE assurance (
 
 CREATE TABLE patient (
     id SERIAL PRIMARY KEY,
-    date_de_naissance VARCHAR(30) NOT NULL,
-    sexe VARCHAR(20) CHECK (sexe IN ('h', 'f', 'nb')) NOT NULL,
-    fk_personne INT UNIQUE NOT NULL,
-    fk_assurance INT UNIQUE NOT NULL,
-    FOREIGN KEY (fk_personne) REFERENCES personne(id),
-    FOREIGN KEY (fk_assurance) REFERENCES assurance(id)
-);
-
-CREATE TABLE medecin (
-    id SERIAL PRIMARY KEY,
-    specialite VARCHAR(30) NOT NULL,
-    fk_personne INT UNIQUE NOT NULL,
-    FOREIGN KEY (fk_personne) REFERENCES personne(id)
+    date_de_naissance DATE NOT NULL,
+    sexe VARCHAR(20) CHECK (sexe IN ('h', 'f', 'nb')),
+    fk_personne INT UNIQUE NOT NULL REFERENCES personne(id),
+    fk_assurance INT NOT NULL REFERENCES assurance(id)
 );
 
 CREATE TABLE hopital (
@@ -35,12 +26,18 @@ CREATE TABLE hopital (
     specialite VARCHAR(30)
 );
 
+CREATE TABLE medecin (
+    id SERIAL PRIMARY KEY,
+    specialite VARCHAR(30) NOT NULL,
+    sexe VARCHAR(30) CHECK (sexe IN ('h', 'f', 'nb')),
+    fk_personne INT UNIQUE NOT NULL REFERENCES personne(id)
+);
+
 CREATE TABLE medecin_hopital_travaille (
     id SERIAL PRIMARY KEY,
-    fk_medecin INT UNIQUE NOT NULL,
-    fk_hopital INT UNIQUE NOT NULL,
-    FOREIGN KEY (fk_medecin) REFERENCES medecin(id),
-    FOREIGN KEY (fk_hopital) REFERENCES hopital(id)
+    fk_medecin INT NOT NULL REFERENCES medecin(id),
+    fk_hopital INT NOT NULL REFERENCES hopital(id),
+    UNIQUE (fk_medecin, fk_hopital)
 );
 
 CREATE TABLE rendez_vous (
@@ -48,20 +45,19 @@ CREATE TABLE rendez_vous (
     date DATE NOT NULL,
     motif VARCHAR(255),
     isFirst BOOLEAN NOT NULL,
-    fk_medecin INT NOT NULL,
-    fk_patient INT NOT NULL,
-    FOREIGN KEY (fk_medecin) REFERENCES medecin(id),
-    FOREIGN KEY (fk_patient) REFERENCES patient(id)
+    fk_medecin INT NOT NULL REFERENCES medecin(id),
+    fk_patient INT NOT NULL REFERENCES patient(id),
+    UNIQUE (fk_medecin, date),
+    UNIQUE (fk_patient, date)
 );
 
 CREATE TABLE prescription (
     id SERIAL PRIMARY KEY,
     date_debut DATE NOT NULL,
-    date_fin DATE NOT NULL,
-    fk_rendez_vous INT NOT NULL,
-    fk_medecin INT NOT NULL,
-    FOREIGN KEY (fk_rendez_vous) REFERENCES rendez_vous(id),
-    FOREIGN KEY (fk_medecin) REFERENCES medecin(id)
+    date_fin DATE NOT NULL CHECK (date_fin <= date_debut + INTERVAL '12 months'),
+    fk_rendez_vous INT NOT NULL REFERENCES rendez_vous(id),
+    fk_medecin INT NOT NULL REFERENCES medecin(id),
+    CONSTRAINT check_prescription_date CHECK (date_debut = (SELECT date FROM rendez_vous WHERE id = fk_rendez_vous))
 );
 
 CREATE TABLE medicament (
@@ -73,27 +69,12 @@ CREATE TABLE medicament (
 
 CREATE TABLE prescription_medicament (
     id SERIAL PRIMARY KEY,
-    fk_prescription INT NOT NULL,
-    fk_medicament INT NOT NULL,
-    FOREIGN KEY (fk_prescription) REFERENCES prescription(id),
-    FOREIGN KEY (fk_medicament) REFERENCES medicament(id)
+    fk_prescription INT NOT NULL REFERENCES prescription(id),
+    fk_medicament INT NOT NULL REFERENCES medicament(id)
 );
 
--- Contraintes d'intégrité additionnelles
--- Un médecin ne peut pas avoir deux rendez-vous en même temps
-ALTER TABLE rendez_vous ADD CONSTRAINT unique_medecin_date UNIQUE (fk_medecin, date);
-
--- Un patient ne peut pas avoir deux rendez-vous en même temps
-ALTER TABLE rendez_vous ADD CONSTRAINT unique_patient_date UNIQUE (fk_patient, date);
-
--- La date de début d'une prescription doit être égale à celle du rendez-vous
-ALTER TABLE prescription ADD CONSTRAINT check_prescription_date CHECK (date_debut = (SELECT date FROM rendez_vous WHERE rendez_vous.id = fk_rendez_vous));
-
--- La durée d'une prescription ne peut excéder 12 mois
-ALTER TABLE prescription ADD CONSTRAINT check_prescription_duration CHECK (date_fin <= date_debut + INTERVAL '12 months');
-
--- Les rendez-vous pour la chirurgie ne peuvent être effectués que pour des patients de plus de 18 ans
-ALTER TABLE rendez_vous ADD CONSTRAINT check_chirurgie_patient_age CHECK (
-    (motif <> 'chirurgie') OR
-    ((SELECT EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM date_de_naissance) FROM patient WHERE patient.id = fk_patient) >= 18)
+-- Contraintes métier supplémentaires
+ALTER TABLE rendez_vous ADD CONSTRAINT unique_patient_medecin UNIQUE (fk_patient, fk_medecin, isFirst);
+ALTER TABLE rendez_vous ADD CONSTRAINT check_motif_chirurgie CHECK (
+    NOT (motif = 'chirurgie' AND fk_patient IN (SELECT id FROM patient WHERE date_de_naissance > CURRENT_DATE - INTERVAL '18 years'))
 );
