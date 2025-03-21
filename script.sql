@@ -2,3 +2,4 @@ SELECT hello;
 select hello;
 select nul; 
 SELECT salut elia;
+SELECT resalut elia;
