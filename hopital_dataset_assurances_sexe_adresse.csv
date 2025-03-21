@@ -1,0 +1,54 @@
+﻿ID Patient;Assurance;Sexe;Adresse corrigée
+1295;Sanitas;Homme;Rue du Simplon 5, 1006 Lausanne, Vaud, Suisse
+2700;Sanitas + complémentaire;Homme;Avenue du Théâtre 7, 1005 Lausanne, Vaud, Suisse
+7572;Helsana + complémentaire;Femme;Rue Saint-Laurent 18, 1003 Lausanne, Vaud, Suisse
+9960;Groupe Mutuel + complémentaire;Femme;Place du Marché 1, 1110 Morges, Vaud, Suisse
+9626;CSS Assurance + complémentaire;Homme;Boulevard de la Gare 10, 1260 Nyon, Vaud, Suisse
+2634;CSS Assurance + complémentaire;Homme;Chemin de la Chapelle 3, 1400 Yverdon-les-Bains, Vaud, Suisse
+1510;CSS Assurance;Homme;Rue du Mont-Blanc 4, 1800 Vevey, Vaud, Suisse
+8721;CSS Assurance + complémentaire;Femme;Avenue du Casino 20, 1820 Montreux, Vaud, Suisse
+8215;CSS Assurance;Non-binaire;Place du Temple 5, 1162 St-Prex, Vaud, Suisse
+6091;Groupe Mutuel;Homme;Grand-Rue 12, 1040 Echallens, Vaud, Suisse
+1039;Groupe Mutuel + complémentaire;;Chemin des Écoles 8, 1134 Vufflens-le-Château, Vaud, Suisse
+3274;Swica + complémentaire;;Rue Centrale 9, 1530 Payerne, Vaud, Suisse
+5661;Groupe Mutuel;Homme;Route de Lausanne 22, 1618 Châtel-St-Denis, Vaud, Suisse
+5061;Assura + complémentaire;Homme;Avenue de la Gare 30, 1020 Renens, Vaud, Suisse
+2505;CSS Assurance;Femme;Route des Avocates 15, 1470 Estavayer-le-Lac, Vaud, Suisse
+4992;Swica;Femme;Route de Crassier 22, 1262 Eysins, Vaud, Suisse
+1027;CSS Assurance;Femme;Route de la Corniche 10, 1095 Lutry, Vaud, Suisse
+4020;Assura;Homme;Rue du Lac 6, 1096 Cully, Vaud, Suisse
+2870;Groupe Mutuel;Homme;Rue de la Côte 17, 1170 Aubonne, Vaud, Suisse
+7528;Groupe Mutuel;Homme;Rue des Remparts 3, 1180 Rolle, Vaud, Suisse
+9592;Concordia + complémentaire;Femme;Place du Midi 10, 1302 Yverdon-les-Bains, Vaud, Suisse
+5808;Concordia + complémentaire;Homme;Route des Rives 8, 1025 St-Sulpice, Vaud, Suisse
+9112;CSS Assurance;Femme;Avenue de Lavaux 14, 1090 La Croix, Vaud, Suisse
+7363;Sanitas + complémentaire;Homme;Rue de la Tour 7, 1273 Arzier-Le Muids, Vaud, Suisse
+9663;Sanitas;Femme;Grand-Rue 16, 1347 Le Sentier, Vaud, Suisse
+4847;Groupe Mutuel;;Chemin des Vignes 5, 1053 Cugy, Vaud, Suisse
+1457;CSS Assurance;Femme;Place du 14-Juin 3, 1042 Assens, Vaud, Suisse
+3949;Sanitas + complémentaire;Femme;Chemin du Moulin 11, 1166 Perroy, Vaud, Suisse
+8872;Helsana + complémentaire;Femme;Rue du Collège 4, 1350 Orbe, Vaud, Suisse
+1139;Concordia + complémentaire;Homme;Route du Village 9, 1163 Etoy, Vaud, Suisse
+4802;CSS Assurance;Non-binaire;Rue du Soleil 12, 1510 Moudon, Vaud, Suisse
+9812;Helsana + complémentaire;Femme;Route de Pomy 15, 1400 Yverdon-les-Bains, Vaud, Suisse
+2720;Groupe Mutuel + complémentaire;Homme;Place du Château 2, 1263 Crans-près-Céligny, Vaud, Suisse
+9288;Assura;Homme;Avenue des Alpes 22, 1844 Villeneuve, Vaud, Suisse
+9465;Helsana;Femme;Route des Cerisiers 7, 1522 Lucens, Vaud, Suisse
+6732;CSS Assurance + complémentaire;Homme;Rue de l’Église 9, 1680 Romont, Vaud, Suisse
+3519;Swica;Homme;Rue des Fontaines 5, 1071 Chexbres, Vaud, Suisse
+7615;Groupe Mutuel + complémentaire;Homme;Place du Centre 8, 1052 Le Mont-sur-Lausanne, Vaud, Suisse
+8326;Helsana;Non-binaire;Route de la Maladière 17, 1022 Chavannes-près-Renens, Vaud, Suisse
+4139;Assura;Femme;Rue du Stand 11, 1373 Chavornay, Vaud, Suisse
+7419;Helsana;Femme;Avenue de la Planta 18, 1580 Avenches, Vaud, Suisse
+6377;Swica;Femme;Route des Prés 3, 1290 Versoix, Vaud, Suisse
+5183;Sanitas + complémentaire;Femme;Boulevard de la Gare 6, 1040 Villars-le-Terroir, Vaud, Suisse
+7492;Sanitas + complémentaire;Femme;Rue de la Poya 14, 1614 Granges (Veveyse), Vaud, Suisse
+2049;Helsana + complémentaire;Femme;Rue du Cygne 2, 1422 Grandson, Vaud, Suisse
+9603;Sanitas + complémentaire;Femme;Route du Léman 20, 1185 Mont-sur-Rolle, Vaud, Suisse
+6740;CSS Assurance;Homme;Avenue de la Gare 5, 1800 Blonay, Vaud, Suisse
+5063;Swica;;Route de St-Cergue 7, 1260 Nyon, Vaud, Suisse
+9631;Groupe Mutuel + complémentaire;Homme;Rue des Moulins 6, 1610 Oron-la-Ville, Vaud, Suisse
+1442;Concordia + complémentaire;Femme;Route de la Combaz 10, 1091 Grandvaux, Vaud, Suisse
+4992;Swica;Femme;Route de Crassier 22, 1262 Eysins, Vaud, Suisse
+3949;Sanitas + complémentaire;Femme;Chemin du Moulin 11, 1166 Perroy, Vaud, Suisse
+9812;Helsana + complémentaire;Femme;Route de Pomy 15, 1400 Yverdon-les-Bains, Vaud, Suisse
