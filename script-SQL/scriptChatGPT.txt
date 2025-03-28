@@ -1,3 +1,4 @@
+-- Créez les tables
 CREATE TABLE personne (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(20) NOT NULL,
@@ -34,10 +35,9 @@ CREATE TABLE medecin (
 );
 
 CREATE TABLE medecin_hopital_travaille (
-    id SERIAL PRIMARY KEY,
     fk_medecin INT NOT NULL REFERENCES medecin(id),
     fk_hopital INT NOT NULL REFERENCES hopital(id),
-    UNIQUE (fk_medecin, fk_hopital)
+    PRIMARY KEY (fk_medecin, fk_hopital)
 );
 
 CREATE TABLE rendez_vous (
@@ -47,8 +47,7 @@ CREATE TABLE rendez_vous (
     isFirst BOOLEAN NOT NULL,
     fk_medecin INT NOT NULL REFERENCES medecin(id),
     fk_patient INT NOT NULL REFERENCES patient(id),
-    UNIQUE (fk_medecin, date),
-    UNIQUE (fk_patient, date)
+    UNIQUE (fk_medecin, date, fk_patient)
 );
 
 CREATE TABLE prescription (
@@ -56,10 +55,44 @@ CREATE TABLE prescription (
     date_debut DATE NOT NULL,
     date_fin DATE NOT NULL CHECK (date_fin <= date_debut + INTERVAL '12 months'),
     fk_rendez_vous INT NOT NULL REFERENCES rendez_vous(id),
-    fk_medecin INT NOT NULL REFERENCES medecin(id),
-    CONSTRAINT check_prescription_date CHECK (date_debut = (SELECT date FROM rendez_vous WHERE id = fk_rendez_vous))
+    fk_medecin INT NOT NULL REFERENCES medecin(id)
 );
 
+-- Créez les triggers
+CREATE OR REPLACE FUNCTION check_motif_chirurgie()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.motif = 'chirurgie' AND (SELECT date_de_naissance FROM patient WHERE id = NEW.fk_patient) > CURRENT_DATE - INTERVAL '18 years' THEN
+        RAISE EXCEPTION 'Un patient de moins de 18 ans ne peut pas avoir un rendez-vous pour une chirurgie';
+    END IF;
+    RETURN NEW;
+END;
+
+$$
+ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION check_prescription_date()
+RETURNS TRIGGER AS 
+$$
+
+BEGIN
+    IF NEW.date_debut <> (SELECT date FROM rendez_vous WHERE id = NEW.fk_rendez_vous) THEN
+        RAISE EXCEPTION 'La date de début de la prescription doit correspondre à la date du rendez-vous';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Créez les triggers sur les tables
+CREATE TRIGGER check_motif_chirurgie_trigger
+BEFORE INSERT OR UPDATE ON rendez_vous
+FOR EACH ROW EXECUTE FUNCTION check_motif_chirurgie();
+
+CREATE TRIGGER check_prescription_date_trigger
+BEFORE INSERT OR UPDATE ON prescription
+FOR EACH ROW EXECUTE FUNCTION check_prescription_date();
+
+-- Créez les tables restantes
 CREATE TABLE medicament (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(30) NOT NULL,
@@ -71,10 +104,4 @@ CREATE TABLE prescription_medicament (
     id SERIAL PRIMARY KEY,
     fk_prescription INT NOT NULL REFERENCES prescription(id),
     fk_medicament INT NOT NULL REFERENCES medicament(id)
-);
-
--- Contraintes métier supplémentaires
-ALTER TABLE rendez_vous ADD CONSTRAINT unique_patient_medecin UNIQUE (fk_patient, fk_medecin, isFirst);
-ALTER TABLE rendez_vous ADD CONSTRAINT check_motif_chirurgie CHECK (
-    NOT (motif = 'chirurgie' AND fk_patient IN (SELECT id FROM patient WHERE date_de_naissance > CURRENT_DATE - INTERVAL '18 years'))
 );
