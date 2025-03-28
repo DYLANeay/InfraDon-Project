@@ -1,35 +1,34 @@
 -- Créez les tables
 CREATE TABLE personne (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(20) NOT NULL,
-    prenom VARCHAR(20) NOT NULL,
-    adresse VARCHAR(30) NOT NULL,
+    nom VARCHAR(50) NOT NULL,
+    prenom VARCHAR(50) NOT NULL,
+    adresse VARCHAR(100) NOT NULL,
     telephone VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE assurance (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(30) NOT NULL,
+    nom VARCHAR(50) NOT NULL,
     complementaire BOOLEAN NOT NULL
 );
 
 CREATE TABLE patient (
     id SERIAL PRIMARY KEY,
     date_de_naissance DATE NOT NULL,
-    sexe VARCHAR(20) CHECK (sexe IN ('h', 'f', 'nb')),
+    sexe VARCHAR(30) CHECK (sexe IN ('h', 'f', 'nb')),
     fk_personne INT UNIQUE NOT NULL REFERENCES personne(id),
     fk_assurance INT NOT NULL REFERENCES assurance(id)
 );
 
 CREATE TABLE hopital (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(30) NOT NULL,
-    specialite VARCHAR(30)
+    nom VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE medecin (
     id SERIAL PRIMARY KEY,
-    specialite VARCHAR(30) NOT NULL,
+    specialite VARCHAR(50) NOT NULL,
     sexe VARCHAR(30) CHECK (sexe IN ('h', 'f', 'nb')),
     fk_personne INT UNIQUE NOT NULL REFERENCES personne(id)
 );
@@ -95,9 +94,9 @@ FOR EACH ROW EXECUTE FUNCTION check_prescription_date();
 -- Créez les tables restantes
 CREATE TABLE medicament (
     id SERIAL PRIMARY KEY,
-    nom VARCHAR(30) NOT NULL,
-    dosage VARCHAR(30),
-    type VARCHAR(30) NOT NULL
+    nom VARCHAR(50) NOT NULL,
+    dosage VARCHAR(50),
+    type VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE prescription_medicament (
