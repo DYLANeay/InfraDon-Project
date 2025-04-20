@@ -1,0 +1,1 @@
+Les fichiers 3.1 et 3.2 doivent être éxecutés dans le même script sur DBeaver/VScode, ceci est dû au fait que les tables temporaires ne sont pas lisibles depuis un autre script.
