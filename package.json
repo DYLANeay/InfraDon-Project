@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "prettier-plugin-sql": "^0.19.0"
+  }
+}

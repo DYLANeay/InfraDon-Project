@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": "*.sql",
+      "options": {
+        "sqlKeywordCase": "upper"
+      }
+    }
+  ]
+}
