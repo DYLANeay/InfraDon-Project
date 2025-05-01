@@ -1,3 +1,4 @@
+-- Active: 1741351947031@@127.0.0.1@5432@hopital
 -- Tables de base
 CREATE TABLE personne (
     id SERIAL PRIMARY KEY,
