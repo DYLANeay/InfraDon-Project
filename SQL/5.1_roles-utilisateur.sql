@@ -6,6 +6,7 @@ GRANT SELECT ON ALL TABLES TO medecin;
 --------------------------------------------
 CREATE ROLE administrateur;
 GRANT INSERT, SELECT, UPDATE, DELETE ON ALL TABLES TO administrateur;
+ 
 --------------------------------------------
 CREATE ROLE secretaire;
 GRANT SELECT ON ALL TABLES TO secretaire;

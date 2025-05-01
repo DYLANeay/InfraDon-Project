@@ -34,8 +34,6 @@ SELECT DISTINCT
 FROM temp_assurance_sexes
 ON CONFLICT DO NOTHING;
 
-SELECT * FROM assurance;
-
 INSERT INTO patient (id, date_de_naissance, sexe, fk_personne, fk_assurance)
 SELECT
     tpn.id,
