@@ -23,9 +23,8 @@ LEFT JOIN temp_assurance_sexes tas ON tdm.id = tas.id
 ON CONFLICT DO NOTHING;
 
 -- Insérer les assurances et distinguer "complémentaire"
-INSERT INTO assurance (id, nom, complementaire)
+INSERT INTO assurance (nom, complementaire)
 SELECT DISTINCT
-    id,
     CASE
         WHEN POSITION('+' IN assurance) > 0 THEN LEFT(assurance, POSITION('+' IN assurance) - 2)
         ELSE assurance
@@ -34,6 +33,8 @@ SELECT DISTINCT
         WHEN LOWER(assurance) LIKE '%complémentaire%' THEN TRUE ELSE FALSE END AS complementaire
 FROM temp_assurance_sexes
 ON CONFLICT DO NOTHING;
+
+SELECT * FROM assurance;
 
 INSERT INTO patient (id, date_de_naissance, sexe, fk_personne, fk_assurance)
 SELECT
