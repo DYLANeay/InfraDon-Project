@@ -3,7 +3,8 @@
     {
       "files": "*.sql",
       "options": {
-        "sqlKeywordCase": "upper"
+        "sqlKeywordCase": "upper",
+        "sqlIndent": "  "
       }
     }
   ]

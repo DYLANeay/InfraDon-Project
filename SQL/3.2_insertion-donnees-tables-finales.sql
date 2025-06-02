@@ -1,40 +1,65 @@
--- Active: 1741351947031@@127.0.0.1@5432@hopital
+-- Active: 1741351947031@@127.0.0.1@5432@hopital_management
 -- Insertion pour les patients
-INSERT INTO personne (id, nom, prenom, adresse, telephone)
-SELECT 
-    id, 
-    nom, 
-    prenom, 
-    COALESCE(adresse, 'Adresse inconnue'),
-    telephone
+INSERT INTO
+    personne (
+        id,
+        nom,
+        prenom,
+        adresse,
+        telephone
+    )
+SELECT id, nom, prenom, COALESCE(adresse, 'Adresse inconnue'), telephone
 FROM temp_patient_nonperso
 ON CONFLICT DO NOTHING;
 
 -- Insertion pour les médecins
-INSERT INTO personne (id, nom, prenom, adresse, telephone)
-SELECT 
-    tdm.id, 
-    tdm.nom, 
-    tdm.prenom, 
-    COALESCE(tas.adresse_corrigee, 'Adresse inconnue'),
-    tdm.telephone
-FROM temp_donnes_medecins tdm
-LEFT JOIN temp_assurance_sexes tas ON tdm.id = tas.id
+INSERT INTO
+    personne (
+        id,
+        nom,
+        prenom,
+        adresse,
+        telephone
+    )
+    -- On utilise COALESCE pour gérer les adresses manquantes, comme un if else
+SELECT tdm.id, tdm.nom, tdm.prenom, COALESCE(
+        tas.adresse_corrigee, 'Adresse inconnue'
+    ), tdm.telephone
+FROM
+    temp_donnes_medecins tdm
+    LEFT JOIN temp_assurance_sexes tas ON tdm.id = tas.id
 ON CONFLICT DO NOTHING;
 
 -- Insérer les assurances et distinguer "complémentaire"
-INSERT INTO assurance (nom, complementaire)
+INSERT INTO
+    assurance (nom, complementaire)
 SELECT DISTINCT
+    -- Si le champ 'assurance' contient un '+', on extrait le nom de l'assurance
+    -- en prenant les caractères avant le '+', moins 2 pour enlever l'espace avant le '+'
     CASE
-        WHEN POSITION('+' IN assurance) > 0 THEN LEFT(assurance, POSITION('+' IN assurance) - 2)
-        ELSE assurance
+        WHEN POSITION('+' IN assurance) > 0 THEN LEFT(
+            assurance,
+            POSITION('+' IN assurance) - 2 -- On retire aussi l'espace avant le '+'
+        )
+        ELSE assurance -- Sinon, on garde toute la chaîne telle quelle
     END AS nom,
+    -- On détermine si l'assurance est complémentaire :
+    -- Si le texte contient 'complémentaire' (insensible à la casse), on met TRUE, sinon FALSE
     CASE
-        WHEN LOWER(assurance) LIKE '%complémentaire%' THEN TRUE ELSE FALSE END AS complementaire
+        WHEN LOWER(assurance) LIKE '%complémentaire%' THEN TRUE
+        ELSE FALSE
+    END AS complementaire
 FROM temp_assurance_sexes
 ON CONFLICT DO NOTHING;
 
-INSERT INTO patient (id, date_de_naissance, sexe, fk_personne, fk_assurance)
+INSERT INTO
+    patient (
+        id,
+        date_de_naissance,
+        sexe,
+        fk_personne,
+        fk_assurance
+    )
 SELECT
     tpn.id,
     tpn.date_de_naissance,
@@ -42,87 +67,131 @@ SELECT
         WHEN 'homme' THEN 'h'
         WHEN 'femme' THEN 'f'
         WHEN 'non-binaire' THEN 'nb'
-        ELSE NULL END AS sexe,
+        ELSE NULL
+    END AS sexe,
     tpn.id AS fk_personne,
-    tas.id AS fk_assurance
-FROM temp_patient_nonperso tpn
-LEFT JOIN temp_assurance_sexes tas ON tpn.id = tas.id
+    a.id AS fk_assurance
+FROM
+    temp_patient_nonperso tpn
+    LEFT JOIN temp_assurance_sexes tas ON tpn.id = tas.id
+    LEFT JOIN assurance a ON a.nom = CASE
+        WHEN POSITION('+' IN tas.assurance) > 0 THEN LEFT(
+            tas.assurance,
+            POSITION('+' IN tas.assurance) - 2
+        )
+        ELSE tas.assurance
+    END
+    AND a.complementaire = CASE
+        WHEN LOWER(tas.assurance) LIKE '%complémentaire%' THEN TRUE
+        ELSE FALSE
+    END
+WHERE
+    a.id IS NOT NULL
 ON CONFLICT DO NOTHING;
 
-INSERT INTO hopital (nom)
-SELECT DISTINCT hopital
+INSERT INTO
+    hopital (nom)
+SELECT DISTINCT
+    hopital
 FROM temp_donnes_medecins
 ON CONFLICT DO NOTHING;
 
 -- 3. Ensuite insérer dans medecin (fk_personne déjà garantie existante)
-INSERT INTO medecin (id, specialite, sexe, fk_personne)
-SELECT 
+INSERT INTO
+    medecin (
+        id,
+        specialite,
+        sexe,
+        fk_personne
+    )
+SELECT
     tdm.id,
     tdm.specialite,
-    CASE 
+    CASE
         WHEN LOWER(tas.sexe) = 'homme' THEN 'h'
         WHEN LOWER(tas.sexe) = 'femme' THEN 'f'
         WHEN LOWER(tas.sexe) = 'non-binaire' THEN 'nb'
         ELSE NULL
     END,
     tdm.id
-FROM temp_donnes_medecins tdm
-LEFT JOIN temp_assurance_sexes tas ON tdm.id = tas.id
+FROM
+    temp_donnes_medecins tdm
+    LEFT JOIN temp_assurance_sexes tas ON tdm.id = tas.id
 ON CONFLICT DO NOTHING;
 
-INSERT INTO medecin_hopital_travaille (fk_medecin, fk_hopital)
-SELECT
-    tdm.id,
-    h.id
-FROM temp_donnes_medecins tdm
-JOIN hopital h ON tdm.hopital = h.nom
+INSERT INTO
+    medecin_hopital_travaille (fk_medecin, fk_hopital)
+SELECT tdm.id, h.id
+FROM
+    temp_donnes_medecins tdm
+    JOIN hopital h ON tdm.hopital = h.nom
 ON CONFLICT DO NOTHING;
 
 -- 1. Crée une colonne temporaire pour savoir si c'est le premier rendez-vous (à ne faire qu'une fois!)
 -- Si tu fais plusieurs imports, adapte en un CTE ou update ensuite
 
-ALTER TABLE temp_rendez_vous ADD COLUMN is_first BOOLEAN DEFAULT FALSE;
+ALTER TABLE temp_rendez_vous
+ADD COLUMN is_first BOOLEAN DEFAULT FALSE;
 
 UPDATE temp_rendez_vous
-SET is_first = TRUE
+SET
+    is_first = TRUE
 WHERE (id_patient, date) IN (
-  SELECT id_patient, MIN(date) FROM temp_rendez_vous GROUP BY id_patient
-);
+        SELECT id_patient, MIN(date)
+        FROM temp_rendez_vous
+        GROUP BY
+            id_patient
+    );
 
-INSERT INTO rendez_vous (id, date, motif, isFirst, fk_medecin, fk_patient)
-SELECT 
-    trv.id, 
-    trv.date, 
-    trv.motif,
-    FALSE as isFirst,
-    trv.id_medecin, 
-    trv.id_patient
-FROM temp_rendez_vous trv
-JOIN medecin m ON trv.id_medecin = m.id         -- On ne prend QUE les medecins existants !
-WHERE trv.id_patient IS NOT NULL
-  AND trv.id_medecin IS NOT NULL
+INSERT INTO
+    rendez_vous (
+        id,
+        date,
+        motif,
+        isFirst,
+        fk_medecin,
+        fk_patient
+    )
+SELECT trv.id, trv.date, trv.motif, FALSE AS isFirst, trv.id_medecin, trv.id_patient
+FROM
+    temp_rendez_vous trv
+    JOIN medecin m ON trv.id_medecin = m.id -- On ne prend QUE les medecins existants !
+WHERE
+    trv.id_patient IS NOT NULL
+    AND trv.id_medecin IS NOT NULL
 ON CONFLICT DO NOTHING;
 
-INSERT INTO medicament (id, nom, dosage, type)
+INSERT INTO
+    medicament (id, nom, dosage, type)
 SELECT id, nom, dosage, type
 FROM temp_medicament
-WHERE id IS NOT NULL
+WHERE
+    id IS NOT NULL
 ON CONFLICT DO NOTHING;
 
-INSERT INTO prescription (id, date_debut, date_fin, fk_rendez_vous, fk_medecin, fk_medicament)
+INSERT INTO
+    prescription (
+        id,
+        date_debut,
+        date_fin,
+        fk_rendez_vous,
+        fk_medecin,
+        fk_medicament
+    )
 SELECT
     tp.id,
-    rv.date as date_debut,
-    rv.date + (tp.duree_jours || ' days')::interval as date_fin,
+    rv.date AS date_debut,
+    rv.date + (tp.duree_jours || ' days')::interval AS date_fin,
     tp.id_rendez_vous,
     rv.fk_medecin,
-    tp.id_medicament         -- MANQUAIT !!
-FROM temp_prescription tp
-JOIN rendez_vous rv ON tp.id_rendez_vous = rv.id
-WHERE tp.id IS NOT NULL
-  AND tp.id_medicament IS NOT NULL
+    tp.id_medicament -- MANQUAIT !!
+FROM
+    temp_prescription tp
+    JOIN rendez_vous rv ON tp.id_rendez_vous = rv.id
+WHERE
+    tp.id IS NOT NULL
+    AND tp.id_medicament IS NOT NULL
 ON CONFLICT DO NOTHING;
 
-ALTER TABLE medecin DROP COLUMN sexe -- modification car on ne veut pas du sexe du médecin dans sa table .. --
-
-
+ALTER TABLE medecin
+DROP COLUMN sexe -- modification car on ne veut pas du sexe du médecin dans sa table .. --
