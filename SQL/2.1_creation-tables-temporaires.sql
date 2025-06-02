@@ -1,4 +1,4 @@
--- Active: 1741351947031@@127.0.0.1@5432@hopital_management
+-- Active: 1741351947031@@127.0.0.1@5432@hopital_final
 -- Créez les tables temporaires
 CREATE TEMPORARY TABLE temp_donnes_medecins (
     id INT,

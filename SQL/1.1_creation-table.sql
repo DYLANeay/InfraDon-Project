@@ -1,4 +1,4 @@
--- Active: 1741351947031@@127.0.0.1@5432@hopital_management
+-- Active: 1741351947031@@127.0.0.1@5432@hopital_final
 -- Tables de base
 CREATE TABLE personne (
     id SERIAL PRIMARY KEY,
@@ -30,7 +30,6 @@ CREATE TABLE hopital (
 CREATE TABLE medecin (
     id SERIAL PRIMARY KEY,
     specialite VARCHAR(50) NOT NULL,
-    sexe VARCHAR(30) CHECK (sexe IN ('h', 'f', 'nb')),
     fk_personne INT UNIQUE NOT NULL REFERENCES personne (id)
 );
 

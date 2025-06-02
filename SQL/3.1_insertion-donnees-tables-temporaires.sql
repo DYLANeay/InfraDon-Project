@@ -1,4 +1,4 @@
--- Active: 1741351947031@@127.0.0.1@5432@hopital_management
+-- Active: 1741351947031@@127.0.0.1@5432@hopital_final
 -- Remplissez les tables temporaires à l'aide de COPY
 COPY temp_donnes_medecins (
     id,
