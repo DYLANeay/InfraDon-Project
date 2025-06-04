@@ -1,10 +1,6 @@
 -- Active: 1741351947031@@127.0.0.1@5432@hopital
 -- 1 nombre de prescription par patient
-SELECT
-    COUNT(prescription) AS "Nombre de prescription",
-    patient.id,
-    personne.nom,
-    personne.prenom
+SELECT COUNT(prescription) AS "Nombre de prescription", personne.nom, personne.prenom
 FROM
     prescription
     JOIN rendez_vous ON prescription.fk_rendez_vous = rendez_vous.id
@@ -14,9 +10,14 @@ GROUP BY
     patient.id,
     personne.nom,
     personne.prenom
+ORDER BY personne.nom ASC;
 
 -- 2. afficher la liste des consultations avec les patients et les rendez vous associé
-SELECT COUNT(rendez_vous) AS "Consultation", rendez_vous.motif, personne.nom, personne.prenom
+SELECT
+    COUNT(rendez_vous) AS "Nombre de consultation",
+    personne.nom,
+    personne.prenom,
+    rendez_vous.date
 FROM
     rendez_vous
     JOIN patient ON rendez_vous.fk_patient = patient.id
@@ -26,7 +27,9 @@ WHERE
 GROUP BY
     rendez_vous.motif,
     personne.nom,
-    personne.prenom
+    personne.prenom,
+    rendez_vous.date
+ORDER BY personne.nom ASC;
 
 -- 3.afficher la spécialité avec le plus de RDV
 SELECT medecin.specialite, COUNT(rendez_vous) AS "Total spécialité"
